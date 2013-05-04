@@ -11,7 +11,7 @@ var Emitter = require('emitter')
 
 function Select (options) {
   this.options = {};
-  this.comboable = [];
+  this.selectable = [];
   this.closed = true;
   this.value = undefined;
   this._group = undefined;
@@ -56,22 +56,22 @@ Select.prototype.render = function () {
  * Add option
  */
 
-Select.prototype.add = function (value, text, comboed) {
+Select.prototype.add = function (value, text, selected) {
   var template = require('./option');
   var el = domify(template)[0];
   
   this.options[value] = el;
-  this.comboable.push('' + value);
+  this.selectable.push('' + value);
   (this._group || this.list).appendChild(el);
   
   el.innerHTML = text;
-  events.bind(el, 'mouseup', this.combo.bind(this, value));
+  events.bind(el, 'mouseup', this.select.bind(this, value));
   events.bind(el, 'mouseover', this.setFocus.bind(this, value));
   
-  comboed = !this.value || !!comboed;
-  if (comboed) this.combo(value);
+  selected = !this.value || !!selected;
+  if (selected) this.select(value);
   
-  return this.emit('option', value, text, comboed);
+  return this.emit('option', value, text, selected);
 };
 
 /**
@@ -118,7 +118,7 @@ Select.prototype.onkeydown = function (e) {
       return this.close();
     case 13:
       this.close();
-      this.combo(this.inFocus || this.value);
+      this.select(this.inFocus || this.value);
       return preventDefault(e);
     case 27:
       this.close();
@@ -140,14 +140,14 @@ Select.prototype.onkeydown = function (e) {
 
 Select.prototype.navigate = function (num) {
   var focus = this.inFocus;
-  var comboable = this.comboable;
-  var index = indexOf(comboable, focus);
+  var selectable = this.selectable;
+  var index = indexOf(selectable, focus);
   
   if (!~index) return this;
   index += num;
   
-  if (comboable.length > index && index >= 0) {
-    var value = comboable[index];
+  if (selectable.length > index && index >= 0) {
+    var value = selectable[index];
     this.setFocus(value);
   }
   
@@ -176,19 +176,19 @@ Select.prototype.setFocus = function (value) {
  * Select option with the given value
  */
 
-Select.prototype.combo = function (value) {
+Select.prototype.select = function (value) {
   var el = this.options[value];
   if (!el) return this;
   
-  var comboed = query('.comboed', this.list);
-  if (comboed) classes(comboed).remove('comboed');
-  classes(el).add('comboed');
+  var selected = query('.selected', this.list);
+  if (selected) classes(selected).remove('selected');
+  classes(el).add('selected');
   
   var label = query('.label', this.el);
   label.innerHTML = el.innerHTML;
   this.value = '' + value;
   
-  this.emit('combo', this.value);
+  this.emit('select', this.value);
   return this.close();
 };
 
@@ -245,16 +245,16 @@ Select.prototype.reposition = function () {
 
 Select.prototype.filter = function (filter) {
   var reg = new RegExp(filter || '', 'i');
-  var comboable = this.comboable = [];
+  var selectable = this.selectable = [];
   
   // Hide non-matches
   for (var i in this.options) {
     var option = this.options[i];
     if (reg.test(option.innerHTML)) {
-      comboable.push(i);
-      classes(option).add('comboable');
+      selectable.push(i);
+      classes(option).add('selectable');
     } else {
-      classes(option).remove('comboable');
+      classes(option).remove('selectable');
     }
   }
   
@@ -262,7 +262,7 @@ Select.prototype.filter = function (filter) {
   var groups = query.all('.group', this.list);
   for (var i = 0; i < groups.length; i++) {
     var group = groups[i];
-    var options = query('.comboable', group);
+    var options = query('.selectable', group);
     if (options) {
       classes(group).remove('empty');
     } else {
@@ -273,11 +273,11 @@ Select.prototype.filter = function (filter) {
   this.emit('filter', filter);
   // Set focus
   var current = this.inFocus;
-  var index = indexOf(comboable, current);
+  var index = indexOf(selectable, current);
   
   if (!~index) {
-    if (!comboable.length) return this.setFocus(null);
-    this.setFocus(comboable[0]);
+    if (!selectable.length) return this.setFocus(null);
+    this.setFocus(selectable[0]);
   }
   
   return this;
