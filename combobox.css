@@ -1,0 +1,76 @@
+.combobox {
+  position: relative;
+  display: inline-block;
+}
+
+.combobox .list {
+  position: relative;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.combobox .search {
+  width: 100%;
+}
+
+.combobox .options {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.combobox .label,
+.combobox .group-label,
+.combobox .option {
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.combobox .option {
+  display: none;
+}
+
+.combobox .option.selectable {
+  display: list-item;
+}
+
+.combobox .option.focus {
+  background: red;
+  color: #fff;
+}
+
+.combobox .group.empty {
+  display: none;
+}
+
+.combobox .inner {
+  z-index: 10;
+  display: none;
+  position: absolute;
+  width: 100%;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.combobox.open .inner {
+  display: block;
+}
+
+.dropdown.south .dropdown-inner {
+  top: 100%;
+}
+
+.dropdown.north .dropdown-inner {
+  bottom: 100%;
+}
+
+.dropdown-search {
+  display: none;
+}
+
+.dropdown.searchable .dropdown-search {
+  display: block;
+}

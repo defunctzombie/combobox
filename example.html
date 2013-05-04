@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="build/build.css", type="text/css">
+  <script src="build/build.js"></script>
+  <style>
+    .combobox .list {
+      max-height: 200px;
+    }
+    
+    .combobox .option {
+      padding: 5px;
+    }
+    
+    .combobox {
+      width: 200px;
+    }
+  </style>
+</head>
+<body>
+  <script>
+    var Combo = require('combobox');
+    var combo = new Combo({search:true});
+    combo.group('Gruppe 1')
+      .add(1, 'halla')
+      .add(2, 'verden')
+      .add(3, 'igjen');
+      
+    combo.group('Gruppe 2')
+      .add(4, 'heeey')
+      .add(5, 'dooode')
+        
+    document.body.appendChild(combo.el)
+  </script>
+</body>
+</html>
