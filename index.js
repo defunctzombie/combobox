@@ -20,6 +20,7 @@ function Combo (options) {
   this.closed = true;
   this.value = undefined;
   this._group = undefined;
+  this.placeholder = options.placeholder;
   this.searchable = options.search;
   this.render();
 }
@@ -42,6 +43,8 @@ Combo.prototype.render = function () {
   this.classlist = classes(this.el);
   
   var label = query('.label', this.el);
+  label.innerHTML = this.placeholder || '';
+  
   var toggle = this.toggle.bind(this);
   events.bind(label, 'mousedown', toggle);
   
@@ -84,7 +87,7 @@ Combo.prototype.add = function (value, text, selected) {
   events.bind(el, 'mouseup', select);
   events.bind(el, 'mouseover', setFocus);
   
-  selected = !this.value || selected;
+  selected = (!this.placeholder && !this.value) || selected;
   if (selected) this.select(value);
   
   return this.emit('option', value, text);

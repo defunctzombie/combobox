@@ -85,7 +85,10 @@
 <body>
   <script>
     var Combo = require('combobox')
-      , combo = new Combo({ search: true });
+    var combo = new Combo({
+        search      : true
+      , placeholder : 'Select something...'
+    });
     
     combo.group('Group 1')
       .add(1, 'Option 1')
@@ -97,7 +100,7 @@
       .add(5, 'Option 5')
       .add(6, 'Option 6');
         
-    document.body.appendChild(combo.el)
+    combo.appendTo(document.body);
   </script>
 </body>
 </html>
