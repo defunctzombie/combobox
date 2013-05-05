@@ -1,5 +1,5 @@
 # combobox
-A lightweight selectbox replacement. Built entirely with components, no jQuery or other frameworks. Comes with search functionality and other cool stuff.
+A lightweight selectbox replacement. Built entirely with components, no jQuery or other frameworks. Comes with search functionality, keyboard navigation and other cool stuff.
 
 ![combobox component](http://f.cl.ly/items/3S2D3E3s2c0R320g3e39/combobox.png)
 
