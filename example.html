@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <link rel="stylesheet" href="build/build.css", type="text/css">
+  <link rel="stylesheet" href="build/build.css" type="text/css">
   <script src="build/build.js"></script>
   <style>
     body {
@@ -12,7 +12,7 @@
     
     input {
       font-size: 16px;
-      padding: 5px;
+      padding: 10px;
     }
   
     .combobox {
@@ -23,11 +23,6 @@
       background: #efefef;
       padding: 10px;
       border: 1px solid #ccc;
-      -webkit-user-select: none;
-    }
-    
-    .combobox li {
-      -webkit-user-select: none;
     }
     
     .combobox:focus,
@@ -42,9 +37,6 @@
     .combobox .search {
       margin: 0;
       border: 1px solid #ccc;
-    }
-    
-    .combobox.south .search {
       border-width: 0 0 1px 0;
     }
     
@@ -65,13 +57,17 @@
       border-top-width: 0;
     }
     
+    .combobox.north .inner {
+      border-bottom-width: 0;
+    }
+    
     .combobox .group-label {
       font-weight: bold;
       padding: 10px;
     }
     
     .combobox .list {
-      max-height: 200px;
+      max-height: 230px;
     }
     
     .combobox .option {
