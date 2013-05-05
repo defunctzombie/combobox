@@ -4,6 +4,7 @@ var Emitter = require('emitter')
   , query = require('query')
   , events = require('event')
   , indexOf = require('indexof')
+  , keyname = require('keyname')
   , scrolltop = require('scrolltop');
   
 /**
@@ -134,20 +135,18 @@ Combo.prototype.onkeydown = function (e) {
   var key = e.keyCode;
   var current = this.inFocus || this.value;
   
-  switch (key) {
-    case 9:
+  switch (keyname(key)) {
+    case 'tab':
+    case 'esc':
       return this.close();
-    case 13:
+    case 'enter':
       preventDefault(e);
       return this.select(current);
-    case 27:
-      preventDefault(e);
-      return this.close();
-    case 37:
-    case 39:
+    case 'left':
+    case 'right':
       return this.open();
-    case 38:
-    case 40:
+    case 'up':
+    case 'down':
       preventDefault(e);
       if (this.closed) return this.open();
       return this.navigate(key === 38 ? -1 : 1);
@@ -333,6 +332,7 @@ Combo.prototype.refocus = function () {
 
 Combo.prototype.appendTo = function (el) {
   el.appendChild(this.el);
+  return this;
 };
 
 /**
@@ -360,9 +360,9 @@ Combo.prototype.close = function () {
 Combo.prototype.toggle = function () {
   this.closed = !this.closed;
   
-  classes(this.el)
-    .toggle('open')
-    .toggle('closed');
+  var classlist = classes(this.el);
+  classlist.toggle('open');
+  classlist.toggle('closed');
     
   if (this.closed) {
     this.el.focus();
