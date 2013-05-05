@@ -43,12 +43,11 @@ Combo.prototype.render = function () {
   events.bind(label, 'mousedown', toggle);
   
   var onkeypress = this.onkeypress.bind(this);
-  events.bind(this.el, 'keypress', onkeypress);
-  
   var onkeydown = this.onkeydown.bind(this);
-  events.bind(this.el, 'keydown', onkeydown);
-  
   var close = this.close.bind(this);
+
+  events.bind(this.el, 'keypress', onkeypress);
+  events.bind(this.el, 'keydown', onkeydown);
   outside(this.el, 'mousedown mouseup', close);
   
   var reposition = this.reposition.bind(this);
@@ -58,7 +57,6 @@ Combo.prototype.render = function () {
   
   var self = this;
   var input = query('.search', this.el);
-  
   classes(this.el).add('searchable');
   multi(input, 'keyup change', function () {
     self.filter(this.value);
@@ -80,12 +78,11 @@ Combo.prototype.add = function (value, text, selected) {
   this.selectable.push('' + value);
   
   var list = this._group || this.list;
-  list.appendChild(el);
-  
   var select = this.select.bind(this, value);
-  events.bind(el, 'mouseup', select);
-  
   var setFocus = this.setFocus.bind(this, value);
+  
+  list.appendChild(el);
+  events.bind(el, 'mouseup', select);
   events.bind(el, 'mouseover', setFocus);
   
   selected = !this.value || selected;
@@ -119,12 +116,12 @@ Combo.prototype.onkeypress = function (e) {
   var key = e.keyCode
   var c = String.fromCharCode(key);
     
-  if (/\w/.test(c)) {
-    query('.search', this.el).value = chr;
-    this.open();
-    this.filter(c);
-    preventDefault(e);
-  }
+  if (!(/\w/.test(c))) return;
+  
+  query('.search', this.el).value = chr;
+  this.open();
+  this.filter(c);
+  preventDefault(e);
 };
 
 /**
@@ -247,21 +244,23 @@ Combo.prototype.reposition = function () {
   var wt = scrolltop();
   var wb = wt + window.innerHeight;
   
+  var label = query('.label', this.el);
+  var lh = label.offsetHeight;
+  var lt = offset(this.el);
+  
   var inner = query('.inner', this.el);
-  var lt = offset(inner);
-  var lh = inner.offsetHeight;
+  var ih = inner.offsetHeight;
   var classlist = classes(this.el);
   
-  if (lt + lh > wb) {
-    classlist.add('north');
-    classlist.remove('south');
-    return this.emit('position', 'north');
+  if (lt + lh + ih <= wb) {
+    classlist.add('south');
+    classlist.remove('north');  
+    return this.emit('position', 'south');
   }
   
-  classlist.add('south');
-  classlist.remove('north');  
-  
-  return this.emit('position', 'south');
+  classlist.add('north');
+  classlist.remove('south');
+  return this.emit('position', 'north');
 };
 
 /**
