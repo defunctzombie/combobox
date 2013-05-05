@@ -1,8 +1,8 @@
 {
   "name": "combobox",
   "repo": "eivindfjeldstad/combobox",
-  "description": "Lightweight select replacemet with search",
-  "version": "0.0.2",
+  "description": "Lightweight select box replacemet",
+  "version": "0.0.3",
   "keywords": [
     "select",
     "combobox",
