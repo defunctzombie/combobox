@@ -3,7 +3,7 @@
   "repo": "eivindfjeldstad/combobox",
   "description": "Lightweight select replacemet with search",
   "version": "0.0.1",
-  "keywords": [],
+  "keywords": ["select", "combobox", "option"],
   "dependencies": {
     "component/emitter": "*",
     "component/domify": "*",
@@ -23,9 +23,5 @@
   ],
   "styles": [
     "combobox.css"
-  ],
-  "templates": [
-    "option.html",
-    "group.html"
   ]
 }

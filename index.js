@@ -9,7 +9,10 @@ var Emitter = require('emitter')
  * Select constructor
  */
 
-function Select (options) {
+function Combo (options) {
+  if (!(this instanceof Combo))
+    return new Combo(options);
+  
   this.options = {};
   this.selectable = [];
   this.closed = true;
@@ -20,22 +23,23 @@ function Select (options) {
 }
 
 /**
- * Emitter mixin
+ * Inherit from emitter
  */
 
-Emitter(Select.prototype);
+Emitter(Combo.prototype);
 
 /**
  * Render html
  */
 
-Select.prototype.render = function () {
+Combo.prototype.render = function () {
   var template = require('./template');
   this.el = domify(template)[0];
   this.list = query('.options', this.el);
   
   var label = query('.label', this.el);
   events.bind(label, 'mousedown', this.toggle.bind(this));
+  
   events.bind(this.el, 'keypress', this.onkeypress.bind(this));
   events.bind(this.el, 'keydown', this.onkeydown.bind(this));
   outside(this.el, 'mousedown mouseup', this.close.bind(this));
@@ -43,6 +47,7 @@ Select.prototype.render = function () {
   
   if (this.searchable) {
     var self = this;
+    classes(this.el).add('searchable');
     var input = query('.search', this.el);
     multi(input, 'keyup change', function () {
       self.filter(this.value);
@@ -56,7 +61,7 @@ Select.prototype.render = function () {
  * Add option
  */
 
-Select.prototype.add = function (value, text, selected) {
+Combo.prototype.add = function (value, text, selected) {
   var template = require('./option');
   var el = domify(template)[0];
   
@@ -78,7 +83,7 @@ Select.prototype.add = function (value, text, selected) {
  * Add optiongroup
  */
 
-Select.prototype.group = function (name) {
+Combo.prototype.group = function (name) {
   var template = require('./group');
   var el = domify(template)[0];
   
@@ -93,7 +98,7 @@ Select.prototype.group = function (name) {
  * React to keypress event when closed
  */
 
-Select.prototype.onkeypress = function (e) {
+Combo.prototype.onkeypress = function (e) {
   if (!this.closed) return;
   
   var key = e.keyCode
@@ -111,7 +116,7 @@ Select.prototype.onkeypress = function (e) {
  * React to keydown event
  */
 
-Select.prototype.onkeydown = function (e) {
+Combo.prototype.onkeydown = function (e) {
   var key = e.keyCode;
   switch (key) {
     case 9:
@@ -138,7 +143,7 @@ Select.prototype.onkeydown = function (e) {
  * Move focus n positions up or down
  */
 
-Select.prototype.navigate = function (num) {
+Combo.prototype.navigate = function (num) {
   var focus = this.inFocus;
   var selectable = this.selectable;
   var index = indexOf(selectable, focus);
@@ -158,7 +163,7 @@ Select.prototype.navigate = function (num) {
  * Highlight option with the given value
  */
 
-Select.prototype.setFocus = function (value) {
+Combo.prototype.setFocus = function (value) {
   var focus = query('.focus', this.list);
   var el = this.options[value];
   
@@ -176,7 +181,7 @@ Select.prototype.setFocus = function (value) {
  * Select option with the given value
  */
 
-Select.prototype.select = function (value) {
+Combo.prototype.select = function (value) {
   var el = this.options[value];
   if (!el) return this;
   
@@ -196,7 +201,7 @@ Select.prototype.select = function (value) {
  * Scroll to option with the given value
  */
 
-Select.prototype.scrollTo = function (value) {  
+Combo.prototype.scrollTo = function (value) {  
   var el = this.options[value];
   if (!el) return this;
   
@@ -217,10 +222,10 @@ Select.prototype.scrollTo = function (value) {
 }
 
 /**
- * Reposition selectbox
+ * Reposition combobox
  */
 
-Select.prototype.reposition = function () {
+Combo.prototype.reposition = function () {
   if (this.closed) return this;
   
   var top = document.documentElement.scrollTop || document.body.scrollTop;
@@ -243,7 +248,7 @@ Select.prototype.reposition = function () {
  * Filter options by text
  */
 
-Select.prototype.filter = function (filter) {
+Combo.prototype.filter = function (filter) {
   var reg = new RegExp(filter || '', 'i');
   var selectable = this.selectable = [];
   
@@ -284,28 +289,36 @@ Select.prototype.filter = function (filter) {
 };
 
 /**
- * Open selectbox
+ * Append combobox to el
  */
 
-Select.prototype.open = function () {
+Combo.prototype.appendTo = function (el) {
+  el.appendChild(this.el);
+};
+
+/**
+ * Open combobox
+ */
+
+Combo.prototype.open = function () {
   if (!this.closed) return this;
   return this.toggle();
 };
 
 /**
- * Close selectbox
+ * Close combobox
  */
 
-Select.prototype.close = function () {
+Combo.prototype.close = function () {
   if (this.closed) return this;
   return this.toggle();
 };
 
 /**
- * Toggle selectbox visibility
+ * Toggle combobox visibility
  */
 
-Select.prototype.toggle = function () {
+Combo.prototype.toggle = function () {
   this.closed = !this.closed;
   
   classes(this.el)

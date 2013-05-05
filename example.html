@@ -1,34 +1,106 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="utf-8">
   <link rel="stylesheet" href="build/build.css", type="text/css">
   <script src="build/build.js"></script>
   <style>
+    body {
+      font-size: 16px;
+      font-family: "Helvetica Neue", "Helvetica", "Arial";
+    }
+    
+    input {
+      font-size: 16px;
+      padding: 5px;
+    }
+  
+    .combobox {
+      width: 300px;
+    }
+    
+    .combobox .label {
+      background: #efefef;
+      padding: 10px;
+      border: 1px solid #ccc;
+      -webkit-user-select: none;
+    }
+    
+    .combobox li {
+      -webkit-user-select: none;
+    }
+    
+    .combobox:focus,
+    .combobox .search:focus {
+      outline: none;
+    }
+    
+    .combobox.closed:focus .label{
+      border-color: blue;
+    }
+    
+    .combobox .search {
+      margin: 0;
+      border: 1px solid #ccc;
+    }
+    
+    .combobox.south .search {
+      border-width: 0 0 1px 0;
+    }
+    
+    .combobox .label:after {
+      content: "▼";
+      padding: 0 10px;
+      line-height: 16px;
+      font-size: 12px;
+      color: #aaa;
+      float: right;
+    }
+    
+    .combobox .inner {
+      border: 1px solid #ccc;
+    }
+    
+    .combobox.south .inner {
+      border-top-width: 0;
+    }
+    
+    .combobox .group-label {
+      font-weight: bold;
+      padding: 10px;
+    }
+    
     .combobox .list {
       max-height: 200px;
     }
     
     .combobox .option {
-      padding: 5px;
+      padding: 10px;
     }
     
-    .combobox {
-      width: 200px;
+    .combobox .group .option {
+      padding-left: 15px;
+    }
+    
+    .combobox .option.focus {
+      background: #efefef;
     }
   </style>
 </head>
 <body>
   <script>
-    var Combo = require('combobox');
-    var combo = new Combo({search:true});
-    combo.group('Gruppe 1')
-      .add(1, 'halla')
-      .add(2, 'verden')
-      .add(3, 'igjen');
+    var Combo = require('combobox')
+      , combo = new Combo({ search: true });
+    
+    combo.group('Group 1')
+      .add(1, 'Option 1')
+      .add(2, 'Option 2')
+      .add(3, 'Option 3');
       
-    combo.group('Gruppe 2')
-      .add(4, 'heeey')
-      .add(5, 'dooode')
+    combo.group('Group 2')
+      .add(4, 'Option 4')
+      .add(5, 'Option 5')
+      .add(6, 'Option 6');
         
     document.body.appendChild(combo.el)
   </script>

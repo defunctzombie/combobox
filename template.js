@@ -1,0 +1,1 @@
+module.exports = '<div class="combobox closed" tabindex="0">\n  <div class="label"></div>\n  <div class="inner">\n    <input type="text" class="search">\n    <div class="list">\n      <ul class="options"></ul>\n    </div>\n  </div>\n</div>';
