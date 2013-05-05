@@ -3,7 +3,8 @@ var Emitter = require('emitter')
   , classes = require('classes')
   , query = require('query')
   , events = require('event')
-  , indexOf = require('indexof');
+  , indexOf = require('indexof')
+  , scrolltop = require('scrolltop');
   
 /**
  * Select constructor
@@ -38,23 +39,32 @@ Combo.prototype.render = function () {
   this.list = query('.options', this.el);
   
   var label = query('.label', this.el);
-  events.bind(label, 'mousedown', this.toggle.bind(this));
+  var toggle = this.toggle.bind(this);
+  events.bind(label, 'mousedown', toggle);
   
-  events.bind(this.el, 'keypress', this.onkeypress.bind(this));
-  events.bind(this.el, 'keydown', this.onkeydown.bind(this));
-  outside(this.el, 'mousedown mouseup', this.close.bind(this));
-  multi(window, 'scroll resize', this.reposition.bind(this));
+  var onkeypress = this.onkeypress.bind(this);
+  events.bind(this.el, 'keypress', onkeypress);
   
-  if (this.searchable) {
-    var self = this;
-    classes(this.el).add('searchable');
-    var input = query('.search', this.el);
-    multi(input, 'keyup change', function () {
-      self.filter(this.value);
-    });
-  }
+  var onkeydown = this.onkeydown.bind(this);
+  events.bind(this.el, 'keydown', onkeydown);
   
-  return this.emit('render', this.el);
+  var close = this.close.bind(this);
+  outside(this.el, 'mousedown mouseup', close);
+  
+  var reposition = this.reposition.bind(this);
+  multi(window, 'scroll resize', reposition);
+  
+  if (!this.searchable) return this;
+  
+  var self = this;
+  var input = query('.search', this.el);
+  
+  classes(this.el).add('searchable');
+  multi(input, 'keyup change', function () {
+    self.filter(this.value);
+  });
+  
+  return this;
 };
 
 /**
@@ -65,18 +75,23 @@ Combo.prototype.add = function (value, text, selected) {
   var template = require('./templates/option');
   var el = domify(template)[0];
   
+  el.innerHTML = text;
   this.options[value] = el;
   this.selectable.push('' + value);
-  (this._group || this.list).appendChild(el);
   
-  el.innerHTML = text;
-  events.bind(el, 'mouseup', this.select.bind(this, value));
-  events.bind(el, 'mouseover', this.setFocus.bind(this, value));
+  var list = this._group || this.list;
+  list.appendChild(el);
   
-  selected = !this.value || !!selected;
+  var select = this.select.bind(this, value);
+  events.bind(el, 'mouseup', select);
+  
+  var setFocus = this.setFocus.bind(this, value);
+  events.bind(el, 'mouseover', setFocus);
+  
+  selected = !this.value || selected;
   if (selected) this.select(value);
   
-  return this.emit('option', value, text, selected);
+  return this.emit('option', value, text);
 };
 
 /**
@@ -102,12 +117,12 @@ Combo.prototype.onkeypress = function (e) {
   if (!this.closed) return;
   
   var key = e.keyCode
-  var chr = String.fromCharCode(key);
+  var c = String.fromCharCode(key);
     
-  if (/\w/.test(chr)) {
+  if (/\w/.test(c)) {
     query('.search', this.el).value = chr;
     this.open();
-    this.filter(chr);
+    this.filter(c);
     preventDefault(e);
   }
 };
@@ -118,16 +133,17 @@ Combo.prototype.onkeypress = function (e) {
 
 Combo.prototype.onkeydown = function (e) {
   var key = e.keyCode;
+  var current = this.inFocus || this.value;
+  
   switch (key) {
     case 9:
       return this.close();
     case 13:
-      this.close();
-      this.select(this.inFocus || this.value);
-      return preventDefault(e);
+      preventDefault(e);
+      return this.select(current);
     case 27:
-      this.close();
-      return preventDefault(e);
+      preventDefault(e);
+      return this.close();
     case 37:
     case 39:
       return this.open();
@@ -144,11 +160,10 @@ Combo.prototype.onkeydown = function (e) {
  */
 
 Combo.prototype.navigate = function (num) {
-  var focus = this.inFocus;
   var selectable = this.selectable;
-  var index = indexOf(selectable, focus);
+  var index = indexOf(selectable, this.inFocus);
   
-  if (!~index) return this;
+  if (index < 0) return this;
   index += num;
   
   if (selectable.length > index && index >= 0) {
@@ -206,16 +221,17 @@ Combo.prototype.scrollTo = function (value) {
   if (!el) return this;
   
   var list = query('.list', this.el);
-  var top = list.scrollTop;
-  var bottom = top + list.clientHeight;
-  var height = el.offsetHeight;
-  var pos = el.offsetTop;
+  var lh = list.clientHeight;
+  var lt = list.scrollTop;
+  var lb = lt + lh;
   
-  if (pos + height > bottom) {
-    list.scrollTop = pos + height - list.clientHeight;
-  } else if (pos < top) {
-    list.scrollTop = 0;
-    list.scrollTop = pos;
+  var eh = el.offsetHeight;
+  var et = el.offsetTop;
+  
+  if (et + eh > lb) {
+    list.scrollTop = et + eh - lh;
+  } else if (et < lt) {
+    list.scrollTop = et;
   }
   
   return this;
@@ -228,12 +244,15 @@ Combo.prototype.scrollTo = function (value) {
 Combo.prototype.reposition = function () {
   if (this.closed) return this;
   
-  var top = document.documentElement.scrollTop || document.body.scrollTop;
-  var bottom = top + window.innerHeight;
-  var off = offset(this.list);
+  var wt = scrolltop();
+  var wb = wt + window.innerHeight;
+  
+  var inner = query('.inner', this.el);
+  var lt = offset(inner);
+  var lh = inner.offsetHeight;
   var classlist = classes(this.el);
   
-  if (off.top + this.list.offsetHeight > bottom) {
+  if (lt + lh > wb) {
     classlist.add('north');
     classlist.remove('south');
     return this.emit('position', 'north');
@@ -241,6 +260,7 @@ Combo.prototype.reposition = function () {
   
   classlist.add('south');
   classlist.remove('north');  
+  
   return this.emit('position', 'south');
 };
 
@@ -252,9 +272,9 @@ Combo.prototype.filter = function (filter) {
   var reg = new RegExp(filter || '', 'i');
   var selectable = this.selectable = [];
   
-  // Hide non-matches
   for (var i in this.options) {
     var option = this.options[i];
+    
     if (reg.test(option.innerHTML)) {
       selectable.push(i);
       classes(option).add('selectable');
@@ -263,29 +283,47 @@ Combo.prototype.filter = function (filter) {
     }
   }
   
-  // Hide empty groups
+  this.hideEmpty();
+  this.refocus();
+  
+  return this.emit('filter', filter);
+};
+
+/**
+ * Hide empty groups
+ */
+
+Combo.prototype.hideEmpty = function () {
   var groups = query.all('.group', this.list);
+  
   for (var i = 0; i < groups.length; i++) {
     var group = groups[i];
     var options = query('.selectable', group);
+    
     if (options) {
       classes(group).remove('empty');
-    } else {
+    } else {    
       classes(group).add('empty');
     }
   }
   
-  this.emit('filter', filter);
-  // Set focus
-  var current = this.inFocus;
-  var index = indexOf(selectable, current);
-  
-  if (!~index) {
-    if (!selectable.length) return this.setFocus(null);
-    this.setFocus(selectable[0]);
-  }
-  
   return this;
+};
+
+/**
+ * Refocus if the element in focus is unselectable
+ */
+
+Combo.prototype.refocus = function () {
+  var selectable = this.selectable;
+  var index = indexOf(selectable, this.inFocus);
+  
+  if (~index) return this;
+  
+  if (!selectable.length) 
+    return this.setFocus(null);
+    
+  return this.setFocus(selectable[0]);
 };
 
 /**
@@ -347,20 +385,14 @@ Combo.prototype.toggle = function () {
 
 function offset (el, to) {
   var parent = el;
-  
-  var top = 0;
-  var left = 0;
+  var top = el.offsetTop;
   
   while (parent = parent.offsetParent) {
     top += parent.offsetTop;
-    left += parent.offsetLeft;
-    if (parent == to) break;
+    if (parent == to) return top;
   }
   
-  return {
-      top: top
-    , left: left
-  };
+  return top;
 }
 
 /**

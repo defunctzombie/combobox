@@ -3,7 +3,11 @@
   "repo": "eivindfjeldstad/combobox",
   "description": "Lightweight select replacemet with search",
   "version": "0.0.1",
-  "keywords": ["select", "combobox", "option"],
+  "keywords": [
+    "select",
+    "combobox",
+    "option"
+  ],
   "dependencies": {
     "component/emitter": "*",
     "component/domify": "*",
@@ -11,7 +15,8 @@
     "component/query": "*",
     "component/events": "*",
     "component/event": "*",
-    "component/indexof": "*"
+    "component/indexof": "*",
+    "yields/scrolltop": "*"
   },
   "development": {},
   "license": "MIT",
