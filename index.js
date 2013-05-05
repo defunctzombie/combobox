@@ -99,7 +99,9 @@ Combo.prototype.group = function (name) {
   var template = require('./templates/group');
   var el = domify(template)[0];
   
-  query('.group-label', el).innerHTML = name;
+  var label = query('.group-label', el);
+  label.innerHTML = name;
+  
   this._group = query('.options', el);
   this.list.appendChild(el);
   
@@ -118,10 +120,10 @@ Combo.prototype.onkeypress = function (e) {
     
   if (!(/\w/.test(c))) return;
   
+  preventDefault(e);
   query('.search', this.el).value = chr;
   this.open();
   this.filter(c);
-  preventDefault(e);
 };
 
 /**
