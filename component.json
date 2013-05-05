@@ -17,9 +17,9 @@
   "license": "MIT",
   "scripts": [
     "index.js",
-    "template.js",
-    "group.js",
-    "option.js"
+    "templates/combo.js",
+    "templates/group.js",
+    "templates/option.js"
   ],
   "styles": [
     "combobox.css"

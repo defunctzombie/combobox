@@ -2,13 +2,13 @@
 build: components index.js combobox.css template.js group.js option.js
 	@component build --dev
 
-template.js: template.html
+template.js: templates/combo.html
 	@component convert $<
 
-group.js: group.html
+group.js: templates/group.html
 	@component convert $<
 	
-option.js: option.html
+option.js: templates/option.html
 	@component convert $<
 
 components: component.json

@@ -33,7 +33,7 @@ Emitter(Combo.prototype);
  */
 
 Combo.prototype.render = function () {
-  var template = require('./template');
+  var template = require('./templates/combo');
   this.el = domify(template)[0];
   this.list = query('.options', this.el);
   
@@ -62,7 +62,7 @@ Combo.prototype.render = function () {
  */
 
 Combo.prototype.add = function (value, text, selected) {
-  var template = require('./option');
+  var template = require('./templates/option');
   var el = domify(template)[0];
   
   this.options[value] = el;
@@ -84,7 +84,7 @@ Combo.prototype.add = function (value, text, selected) {
  */
 
 Combo.prototype.group = function (name) {
-  var template = require('./group');
+  var template = require('./templates/group');
   var el = domify(template)[0];
   
   query('.group-label', el).innerHTML = name;
@@ -409,4 +409,4 @@ function outside (el, evt, callback) {
   multi(document, evt, callback);
 }
 
-module.exports = Select;
+module.exports = Combo;
