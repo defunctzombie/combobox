@@ -122,7 +122,7 @@ Combo.prototype.onkeypress = function (e) {
   if (!(/\w/.test(c))) return;
   
   preventDefault(e);
-  query('.search', this.el).value = chr;
+  query('.search', this.el).value = c;
   this.open();
   this.filter(c);
 };
