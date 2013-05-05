@@ -2,7 +2,7 @@
   "name": "combobox",
   "repo": "eivindfjeldstad/combobox",
   "description": "Lightweight select box replacemet",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "keywords": [
     "select",
     "combobox",
@@ -13,7 +13,6 @@
     "component/domify": "*",
     "component/classes": "*",
     "component/query": "*",
-    "component/events": "*",
     "component/event": "*",
     "component/indexof": "*",
     "yields/scrolltop": "*",
