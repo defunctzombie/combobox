@@ -15,10 +15,6 @@
   -webkit-overflow-scrolling: touch;
 }
 
-.combobox .search {
-  width: 100%;
-}
-
 .combobox .options {
   margin: 0;
   padding: 0;
@@ -67,6 +63,7 @@
 
 .combobox .search {
   display: none;
+  width: 100%;
 }
 
 .combobox.searchable .search {
