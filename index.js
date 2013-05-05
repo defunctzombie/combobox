@@ -38,6 +38,7 @@ Combo.prototype.render = function () {
   var template = require('./templates/combo');
   this.el = domify(template)[0];
   this.list = query('.options', this.el);
+  this.classlist = classes(this.el);
   
   var label = query('.label', this.el);
   var toggle = this.toggle.bind(this);
@@ -57,7 +58,7 @@ Combo.prototype.render = function () {
   if (!this.searchable) return this;
   var input = query('.search', this.el);
   var keyup = this.onkeyup.bind(this);
-  classes(this.el).add('searchable');
+  this.addClass('searchable');
   multi(input, 'keyup change', keyup);
   
   return this;
@@ -258,16 +259,15 @@ Combo.prototype.reposition = function () {
   
   var inner = query('.inner', this.el);
   var ih = inner.offsetHeight;
-  var classlist = classes(this.el);
   
   if (lt + lh + ih <= wb) {
-    classlist.add('south');
-    classlist.remove('north');  
+    this.addClass('south');
+    this.removeClass('north');  
     return this.emit('position', 'south');
   }
   
-  classlist.add('north');
-  classlist.remove('south');
+  this.addClass('north');
+  this.removeClass('south');
   return this.emit('position', 'north');
 };
 
@@ -343,6 +343,24 @@ Combo.prototype.appendTo = function (el) {
 };
 
 /**
+ * Add class to combobox
+ */
+
+Combo.prototype.addClass = function (name) {
+  this.classlist.add(name);
+  return this;
+};
+
+/**
+ * Remove class from combobox
+ */
+
+Combo.prototype.removeClass = function (name) {
+  this.classlist.remove(name);
+  return this;
+};
+
+/**
  * Open combobox
  */
 
@@ -367,9 +385,8 @@ Combo.prototype.close = function () {
 Combo.prototype.toggle = function () {
   this.closed = !this.closed;
   
-  var classlist = classes(this.el);
-  classlist.toggle('open');
-  classlist.toggle('closed');
+  this.classlist.toggle('open');
+  this.classlist.toggle('closed');
     
   if (this.closed) {
     this.el.focus();
