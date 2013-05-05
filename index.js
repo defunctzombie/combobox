@@ -20,7 +20,7 @@ function Combo (options) {
   this.closed = true;
   this.value = undefined;
   this._group = undefined;
-  this.placeholder = options.placeholder;
+  this.placeholder = options.placeholder || '';
   this.searchable = options.search;
   this.render();
 }
@@ -43,15 +43,13 @@ Combo.prototype.render = function () {
   this.classlist = classes(this.el);
   
   var label = query('.label', this.el);
-  label.innerHTML = this.placeholder || '';
-  
   var toggle = this.toggle.bind(this);
+  label.innerHTML = this.placeholder;
   events.bind(label, 'mousedown', toggle);
   
   var onkeypress = this.onkeypress.bind(this);
   var onkeydown = this.onkeydown.bind(this);
   var close = this.close.bind(this);
-
   events.bind(this.el, 'keypress', onkeypress);
   events.bind(this.el, 'keydown', onkeydown);
   outside(this.el, 'mousedown mouseup', close);
@@ -74,21 +72,23 @@ Combo.prototype.render = function () {
 Combo.prototype.add = function (value, text, selected) {
   var template = require('./templates/option');
   var el = domify(template)[0];
+  var list = this._group || this.list;
   
   el.innerHTML = text;
   this.options[value] = el;
   this.selectable.push('' + value);
+  list.appendChild(el);
   
-  var list = this._group || this.list;
   var select = this.select.bind(this, value);
   var setFocus = this.setFocus.bind(this, value);
-  
-  list.appendChild(el);
   events.bind(el, 'mouseup', select);
   events.bind(el, 'mouseover', setFocus);
   
-  selected = (!this.placeholder && !this.value) || selected;
-  if (selected) this.select(value);
+  if (this.placeholder && !this.inFocus) {
+    this.setFocus(value);
+  } else if (!(this.placeholder || this.value) || selected) {
+    this.select(value);
+  }
   
   return this.emit('option', value, text);
 };
@@ -197,7 +197,7 @@ Combo.prototype.setFocus = function (value) {
   this.inFocus = '' + value;
   this.scrollTo(value);
   
-  return this.emit('focus', this.inFocus);
+  return this.emit('focus', value);
 };
 
 /**
@@ -216,7 +216,7 @@ Combo.prototype.select = function (value) {
   label.innerHTML = el.innerHTML;
   this.value = '' + value;
   
-  this.emit('select', this.value);
+  this.emit('select', value);
   return this.close();
 };
 
