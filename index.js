@@ -55,13 +55,10 @@ Combo.prototype.render = function () {
   multi(window, 'scroll resize', reposition);
   
   if (!this.searchable) return this;
-  
-  var self = this;
   var input = query('.search', this.el);
+  var keyup = this.onkeyup.bind(this);
   classes(this.el).add('searchable');
-  multi(input, 'keyup change', function () {
-    self.filter(this.value);
-  });
+  multi(input, 'keyup change', keyup);
   
   return this;
 };
@@ -152,6 +149,16 @@ Combo.prototype.onkeydown = function (e) {
       return this.navigate(key === 38 ? -1 : 1);
   }
 };
+
+/**
+ * React to keyup event
+ */
+
+Combo.prototype.onkeyup = function () {
+  var input = query('.search', this.el);
+  this.filter(input.value);
+};
+
 
 /**
  * Move focus n positions up or down
@@ -316,9 +323,9 @@ Combo.prototype.hideEmpty = function () {
 
 Combo.prototype.refocus = function () {
   var selectable = this.selectable;
-  var index = indexOf(selectable, this.inFocus);
   
-  if (~index) return this;
+  if (~indexOf(selectable, this.inFocus))
+    return this.scrollTo(this.inFocus);
   
   if (!selectable.length) 
     return this.setFocus(null);
