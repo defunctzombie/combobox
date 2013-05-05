@@ -10,13 +10,13 @@
 ## Use
 
   ```js
-    var combo = require('combobox');
-    combo({ search: true });
-    combo.group('Group 1')
+  var Combo = require('combobox');
+  var combo = Combo({ search: true });
+  combo.group('Group 1')
     .add(1, 'Option 1')
     .add(2, 'Option 2');
     
-    combo.appendTo(document.body);
+  combo.appendTo(document.body);
   ```
 
 ## API
