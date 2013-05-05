@@ -38,6 +38,7 @@ Combo.prototype.render = function () {
   var template = require('./templates/combo');
   this.el = domify(template)[0];
   this.list = query('.options', this.el);
+  this.input = query('.search', this.el);
   this.classlist = classes(this.el);
   
   var label = query('.label', this.el);
@@ -56,10 +57,9 @@ Combo.prototype.render = function () {
   multi(window, 'scroll resize', reposition);
   
   if (!this.searchable) return this;
-  var input = query('.search', this.el);
-  var keyup = this.onkeyup.bind(this);
+  var onkeyup = this.onkeyup.bind(this);
+  multi(this.input, 'keyup change', onkeyup);
   this.addClass('searchable');
-  multi(input, 'keyup change', keyup);
   
   return this;
 };
@@ -120,7 +120,7 @@ Combo.prototype.onkeypress = function (e) {
   if (!(/\w/.test(c))) return;
   
   preventDefault(e);
-  query('.search', this.el).value = c;
+  this.input.value = c;
   this.open();
   this.filter(c);
 };
@@ -156,8 +156,7 @@ Combo.prototype.onkeydown = function (e) {
  */
 
 Combo.prototype.onkeyup = function () {
-  var input = query('.search', this.el);
-  this.filter(input.value);
+  this.filter(this.input.value);
 };
 
 
@@ -396,7 +395,7 @@ Combo.prototype.toggle = function () {
   this.setFocus(this.value);
   this.reposition();
   
-  var input = query('.search', this.el);
+  var input = this.input;
   tick(function () {
     input.focus();
   });
