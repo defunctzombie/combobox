@@ -5,7 +5,8 @@ var Emitter = require('emitter')
   , events = require('event')
   , indexOf = require('indexof')
   , keyname = require('keyname')
-  , scrolltop = require('scrolltop');
+  , scrolltop = require('scrolltop')
+  , bind = require('bind');
   
 /**
  * Select constructor
@@ -43,22 +44,22 @@ Combo.prototype.render = function () {
   this.classlist = classes(this.el);
   
   var label = query('.label', this.el);
-  var toggle = this.toggle.bind(this);
+  var toggle = bind(this, 'toggle');
   label.innerHTML = this.placeholder;
   events.bind(label, 'mousedown', toggle);
   
-  var onkeypress = this.onkeypress.bind(this);
-  var onkeydown = this.onkeydown.bind(this);
-  var close = this.close.bind(this);
+  var onkeypress = bind(this, 'onkeypress');
+  var onkeydown = bind(this, 'onkeydown');
+  var close = bind(this, 'close');
   events.bind(this.el, 'keypress', onkeypress);
   events.bind(this.el, 'keydown', onkeydown);
   outside(this.el, 'mousedown mouseup', close);
   
-  var reposition = this.reposition.bind(this);
+  var reposition = bind(this, 'reposition');
   multi(window, 'scroll resize', reposition);
   
   if (!this.searchable) return this;
-  var onkeyup = this.onkeyup.bind(this);
+  var onkeyup = bin(this, 'onkeyup');
   multi(this.input, 'keyup change', onkeyup);
   this.addClass('searchable');
   
@@ -79,8 +80,8 @@ Combo.prototype.add = function (value, text, selected) {
   this.selectable.push('' + value);
   list.appendChild(el);
   
-  var select = this.select.bind(this, value);
-  var setFocus = this.setFocus.bind(this, value);
+  var select = bind(this, 'select', value);
+  var setFocus = bind(this, 'setFocus', value);
   events.bind(el, 'mouseup', select);
   events.bind(el, 'mouseover', setFocus);
   

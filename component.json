@@ -16,7 +16,8 @@
     "component/event": "*",
     "component/indexof": "*",
     "yields/scrolltop": "*",
-    "component/keyname": "*"
+    "component/keyname": "*",
+    "component/bind": "*"
   },
   "development": {},
   "license": "MIT",
