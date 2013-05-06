@@ -59,7 +59,7 @@ Combo.prototype.render = function () {
   multi(window, 'scroll resize', reposition);
   
   if (!this.searchable) return this;
-  var onkeyup = bin(this, 'onkeyup');
+  var onkeyup = bind(this, 'onkeyup');
   multi(this.input, 'keyup change', onkeyup);
   this.addClass('searchable');
   
