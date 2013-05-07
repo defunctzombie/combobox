@@ -23,6 +23,7 @@ function Combo (options) {
   this._group = undefined;
   this.placeholder = options.placeholder || '';
   this.searchable = options.search;
+  this.binding = binding(this);
   this.render();
 }
 
@@ -41,28 +42,72 @@ Combo.prototype.render = function () {
   this.el = domify(template)[0];
   this.list = query('.options', this.el);
   this.input = query('.search', this.el);
-  this.classlist = classes(this.el);
+  this.classes = classes(this.el);
   
-  var label = query('.label', this.el);
-  var toggle = bind(this, 'toggle');
-  label.innerHTML = this.placeholder;
-  events.bind(label, 'mousedown', toggle);
+  this.label = query('.label', this.el);
+  this.label.innerHTML = this.placeholder;
   
-  var onkeypress = bind(this, 'onkeypress');
-  var onkeydown = bind(this, 'onkeydown');
-  var close = bind(this, 'close');
-  events.bind(this.el, 'keypress', onkeypress);
-  events.bind(this.el, 'keydown', onkeydown);
-  outside(this.el, 'mousedown mouseup', close);
+  if (this.searchable)
+    this.addClass('searchable');
   
-  var reposition = bind(this, 'reposition');
-  multi(window, 'scroll resize', reposition);
-  
-  if (!this.searchable) return this;
-  var onkeyup = bind(this, 'onkeyup');
-  multi(this.input, 'keyup change', onkeyup);
-  this.addClass('searchable');
-  
+  return this.bind();
+};
+
+/**
+ * Bind events
+ */
+
+Combo.prototype.bind = function () {
+  var bind = this.binding;
+  events.bind(this.el, 'keypress', bind('onkeypress'));
+  events.bind(this.el, 'keydown', bind('onkeydown'));
+  events.bind(this.el, 'mousedown', stopPropagation);
+  events.bind(this.el, 'mouseup', stopPropagation);
+  events.bind(this.input, 'keyup', bind('onkeyup'));
+  events.bind(this.input, 'change', bind('onkeyup'));
+  events.bind(this.label, 'mousedown', bind('toggle'));
+  return this;
+};
+
+/**
+ * Unbind events
+ */
+
+Combo.prototype.unbind = function () {
+  var bind = this.binding;
+  events.unbind(this.el, 'keypress', bind('onkeypress'));
+  events.unbind(this.el, 'keydown', bind('onkeydown'));
+  events.unbind(this.el, 'mousedown', stopPropagation);
+  events.unbind(this.el, 'mouseup', stopPropagation);
+  events.unbind(this.input, 'keyup', bind('onkeyup'));
+  events.unbind(this.input, 'change', bind('onkeyup'));
+  events.unbind(this.label, 'mousedown', bind('toggle'));
+  return this.unbindOutside();
+};
+
+/**
+ * Bind window events
+ */
+
+Combo.prototype.bindOutside = function () {
+  var bind = this.binding;
+  events.bind(window, 'mousedown', bind('close'));
+  events.bind(window, 'mouseup', bind('close'));
+  events.bind(window, 'scroll', bind('reposition'));
+  events.bind(window, 'resize', bind('reposition'));
+  return this;
+};
+
+/**
+ * Unbind window events
+ */
+
+Combo.prototype.unbindOutside = function () {
+  var bind = this.binding;
+  events.unbind(window, 'mousedown', bind('close'));
+  events.unbind(window, 'mouseup', bind('close'));
+  events.unbind(window, 'scroll', bind('reposition'));
+  events.unbind(window, 'resize', bind('reposition'));
   return this;
 };
 
@@ -85,13 +130,21 @@ Combo.prototype.add = function (value, text, selected) {
   events.bind(el, 'mouseup', select);
   events.bind(el, 'mouseover', setFocus);
   
-  if (this.placeholder && !this.inFocus) {
-    this.setFocus(value);
-  } else if (!(this.placeholder || this.value) || selected) {
+  if (!(this.placeholder || this.value) || selected) {
     this.select(value);
   }
   
   return this.emit('option', value, text);
+};
+
+/** 
+ * Remove option
+ */
+
+Combo.prototype.remove = function (value) {
+  var option = this.options[value];
+  this.el.removeChild(option);
+  return this.emit('remove', value);
 };
 
 /**
@@ -101,10 +154,9 @@ Combo.prototype.add = function (value, text, selected) {
 Combo.prototype.group = function (name) {
   var template = require('./templates/group');
   var el = domify(template)[0];
-  
   var label = query('.group-label', el);
-  label.innerHTML = name;
   
+  label.innerHTML = name;
   this._group = query('.options', el);
   this.list.appendChild(el);
   
@@ -115,13 +167,15 @@ Combo.prototype.group = function (name) {
  * React to keypress event when closed
  */
 
+var isLetter = /\w/;
+
 Combo.prototype.onkeypress = function (e) {
   if (!this.closed) return;
   
   var key = e.keyCode
   var c = String.fromCharCode(key);
     
-  if (!(/\w/.test(c))) return;
+  if (!isLetter.test(c)) return;
   
   preventDefault(e);
   this.input.value = c;
@@ -140,18 +194,24 @@ Combo.prototype.onkeydown = function (e) {
   switch (keyname(key)) {
     case 'tab':
     case 'esc':
-      return this.close();
+      this.close();
+      break;
     case 'enter':
       preventDefault(e);
-      return this.select(current);
+      this.select(current);
+      break;
     case 'left':
     case 'right':
-      return this.open();
+      this.open();
+      break;
     case 'up':
+      preventDefault(e);
+      this.navigate(-1);
+      break;
     case 'down':
       preventDefault(e);
-      if (this.closed) return this.open();
-      return this.navigate(key === 38 ? -1 : 1);
+      this.navigate(1);
+      break;
   }
 };
 
@@ -168,15 +228,14 @@ Combo.prototype.onkeyup = function () {
  * Move focus n positions up or down
  */
 
-Combo.prototype.navigate = function (num) {
+Combo.prototype.navigate = function (n) {
+  if (this.closed) return this.open();
+  
   var selectable = this.selectable;
-  var index = indexOf(selectable, this.inFocus);
+  var i = indexOf(selectable, this.inFocus) + n;
   
-  if (index < 0) return this;
-  index += num;
-  
-  if (selectable.length > index && index >= 0) {
-    var value = selectable[index];
+  if (selectable.length > i && i >= 0) {
+    var value = selectable[i];
     this.setFocus(value);
   }
   
@@ -189,11 +248,11 @@ Combo.prototype.navigate = function (num) {
 
 Combo.prototype.setFocus = function (value) {
   var focus = query('.focus', this.list);
-  var el = this.options[value];
+  var option = this.options[value];
   
-  if (!el) return this;
+  if (!option) return this;
   if (focus) classes(focus).remove('focus');
-  classes(el).add('focus');
+  classes(option).add('focus');
   
   this.inFocus = '' + value;
   this.scrollTo(value);
@@ -206,15 +265,14 @@ Combo.prototype.setFocus = function (value) {
  */
 
 Combo.prototype.select = function (value) {
-  var el = this.options[value];
-  if (!el) return this;
+  var option = this.options[value];
+  if (!option) return this;
   
   var selected = query('.selected', this.list);
   if (selected) classes(selected).remove('selected');
-  classes(el).add('selected');
+  classes(option).add('selected');
   
-  var label = query('.label', this.el);
-  label.innerHTML = el.innerHTML;
+  this.label.innerHTML = option.innerHTML;
   this.value = '' + value;
   
   this.emit('select', value);
@@ -226,21 +284,21 @@ Combo.prototype.select = function (value) {
  */
 
 Combo.prototype.scrollTo = function (value) {  
-  var el = this.options[value];
-  if (!el) return this;
+  var option = this.options[value];
+  if (!option) return this;
   
   var list = query('.list', this.el);
   var lh = list.clientHeight;
   var lt = list.scrollTop;
   var lb = lt + lh;
   
-  var eh = el.offsetHeight;
-  var et = el.offsetTop;
+  var oh = option.offsetHeight;
+  var ot = option.offsetTop;
   
-  if (et + eh > lb) {
-    list.scrollTop = et + eh - lh;
-  } else if (et < lt) {
-    list.scrollTop = et;
+  if (ot + oh > lb) {
+    list.scrollTop = ot + oh - lh;
+  } else if (ot < lt) {
+    list.scrollTop = ot;
   }
   
   return this;
@@ -256,8 +314,7 @@ Combo.prototype.reposition = function () {
   var wt = scrolltop();
   var wb = wt + window.innerHeight;
   
-  var label = query('.label', this.el);
-  var lh = label.offsetHeight;
+  var lh = this.label.offsetHeight;
   var lt = offset(this.el);
   
   var inner = query('.inner', this.el);
@@ -350,7 +407,7 @@ Combo.prototype.appendTo = function (el) {
  */
 
 Combo.prototype.addClass = function (name) {
-  this.classlist.add(name);
+  this.classes.add(name);
   return this;
 };
 
@@ -359,7 +416,7 @@ Combo.prototype.addClass = function (name) {
  */
 
 Combo.prototype.removeClass = function (name) {
-  this.classlist.remove(name);
+  this.classes.remove(name);
   return this;
 };
 
@@ -388,14 +445,16 @@ Combo.prototype.close = function () {
 Combo.prototype.toggle = function () {
   this.closed = !this.closed;
   
-  this.classlist.toggle('open');
-  this.classlist.toggle('closed');
+  this.classes.toggle('open');
+  this.classes.toggle('closed');
     
   if (this.closed) {
     this.el.focus();
+    this.unbindOutside();
     return this.emit('close');
   }
   
+  this.bindOutside();
   this.setFocus(this.value);
   this.reposition();
   
@@ -406,6 +465,18 @@ Combo.prototype.toggle = function () {
 
   return this.emit('open');
 };
+
+/**
+ * Create or return function bound to `this` with `_` as a prefix
+ */
+
+function binding (obj) {
+  return function (name) {
+    var _name = '_' + name;
+    obj[_name] = obj[_name] || bind(obj, name);
+    return obj[_name];
+  }
+}
 
 /**
  * Get element offset
@@ -442,31 +513,11 @@ function stopPropagation (e) {
 }
 
 /**
- * Multiple events
- */
-
-function multi (el, evt, callback) {
-  evt = evt.split(' ');
-  for (var i = 0; i < evt.length; i++) {
-    events.bind(el, evt[i], callback);
-  }
-}
-
-/**
  * Defer execution
  */
 
 function tick (callback) {
   setTimeout(callback, 0);
-}
-
-/**
- * Detect click outside element
- */
-
-function outside (el, evt, callback) {
-  multi(el, evt, stopPropagation);
-  multi(document, evt, callback);
 }
 
 module.exports = Combo;
