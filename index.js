@@ -171,6 +171,13 @@ Combo.prototype.group = function (name) {
   return this.emit('group', name);
 };
 
+Combo.prototype.reset = function() {
+  this.label.innerHTML = this.placeholder;
+  this.input.value = '';
+  this.value = '';
+  return this.close();
+};
+
 /**
  * React to keypress event when closed
  */
