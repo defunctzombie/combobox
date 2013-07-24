@@ -143,7 +143,8 @@ Combo.prototype.add = function (value, text, selected) {
 
 Combo.prototype.remove = function (value) {
   var option = this.options[value];
-  this.el.removeChild(option);
+  option.parentNode.removeChild(option);
+  this.options[value] = undefined;
   return this.emit('remove', value);
 };
 
