@@ -39,7 +39,7 @@ Emitter(Combo.prototype);
 
 Combo.prototype.render = function () {
   var template = require('./templates/combo');
-  this.el = domify(template)[0];
+  this.el = domify(template);
   this.list = query('.options', this.el);
   this.input = query('.search', this.el);
   this.classes = classes(this.el);
@@ -117,7 +117,7 @@ Combo.prototype.unbindOutside = function () {
 
 Combo.prototype.add = function (value, text, selected) {
   var template = require('./templates/option');
-  var el = domify(template)[0];
+  var el = domify(template);
   var list = this._group || this.list;
   
   el.innerHTML = text;
@@ -153,7 +153,7 @@ Combo.prototype.remove = function (value) {
 
 Combo.prototype.group = function (name) {
   var template = require('./templates/group');
-  var el = domify(template)[0];
+  var el = domify(template);
   var label = query('.group-label', el);
   
   label.innerHTML = name;
