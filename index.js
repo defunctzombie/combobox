@@ -148,6 +148,13 @@ Combo.prototype.remove = function (value) {
   return this.emit('remove', value);
 };
 
+Combo.prototype.empty = function() {
+  var self = this;
+  Object.keys(this.options).forEach(function(opt) {
+    self.remove(opt);
+  });
+};
+
 /**
  * Add optiongroup
  */
