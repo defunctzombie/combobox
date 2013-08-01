@@ -144,7 +144,7 @@ Combo.prototype.add = function (value, text, selected) {
 Combo.prototype.remove = function (value) {
   var option = this.options[value];
   option.parentNode.removeChild(option);
-  this.options[value] = undefined;
+  delete this.options[value];
   return this.emit('remove', value);
 };
 
@@ -172,10 +172,13 @@ Combo.prototype.group = function (name) {
 };
 
 Combo.prototype.reset = function() {
-  this.label.innerHTML = this.placeholder;
-  this.input.value = '';
-  this.value = '';
-  return this.close();
+  var self = this;
+  self.label.innerHTML = this.placeholder;
+  self.input.value = '';
+  self.value = undefined;
+  self.selectable = [];
+  self.options = {};
+  return self.close();
 };
 
 /**
@@ -353,7 +356,7 @@ Combo.prototype.reposition = function () {
 Combo.prototype.filter = function (filter) {
   var reg = new RegExp(filter || '', 'i');
   var selectable = this.selectable = [];
-  
+
   for (var i in this.options) {
     var option = this.options[i];
     
