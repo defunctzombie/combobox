@@ -1,30 +1,30 @@
 {
-    "name": "combobox",
-    "version": "0.3.1",
-    "description": "Lightweight select box replacemet",
-    "keywords": [
-      "select",
-      "combobox",
-      "option"
-    ],
-    "dependencies": {
-        "bind-component": "0.0.1",
-        "emitter-component": "1.0.1",
-        "query-component": "0.0.1",
-        "classes-component": "1.1.2",
-        "domify": "1.0.0",
-        "indexof": "0.0.1",
-        "event-component": "0.1.0",
-        "keyname": "0.0.1",
-        "scrolltop": "0.0.1"
-    },
-    "browser": {
-        "bind": "bind-component",
-        "query": "query-component",
-        "event": "event-component",
-        "classes": "classes-component",
-        "emitter": "emitter-component"
-    },
-    "style": "./combobox.css",
-    "license": "MIT"
+  "name": "combobox",
+  "version": "0.3.1-dz0",
+  "description": "Lightweight select box replacemet",
+  "keywords": [
+    "select",
+    "combobox",
+    "option"
+  ],
+  "dependencies": {
+    "bind-component": "0.0.1",
+    "emitter-component": "1.0.1",
+    "query-component": "0.0.1",
+    "classes-component": "1.1.2",
+    "domify": "1.0.0",
+    "indexof": "0.0.1",
+    "event-component": "0.1.0",
+    "keyname": "0.0.1",
+    "scrolltop": "0.0.1"
+  },
+  "browser": {
+    "bind": "bind-component",
+    "query": "query-component",
+    "event": "event-component",
+    "classes": "classes-component",
+    "emitter": "emitter-component"
+  },
+  "style": "./combobox.css",
+  "license": "MIT"
 }
