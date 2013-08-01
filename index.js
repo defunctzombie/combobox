@@ -176,8 +176,6 @@ Combo.prototype.reset = function() {
   self.label.innerHTML = this.placeholder;
   self.input.value = '';
   self.value = undefined;
-  self.selectable = [];
-  self.options = {};
   return self.close();
 };
 
